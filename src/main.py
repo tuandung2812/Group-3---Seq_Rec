@@ -48,6 +48,7 @@ def main():
     # GPU
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     args.device = torch.device('cpu')
+    print(torch.cuda.is_available())
     if args.gpu != '' and torch.cuda.is_available():
         args.device = torch.device('cuda')
     logging.info('Device: {}'.format(args.device))
