@@ -8,4 +8,7 @@ doc/
 model/
 log/
 result/
+data/Video_Games/meta_Video_Games.json.gz
+data/Video_Games/reviews_Video_Games_5.json.gz
+
 search.py
