@@ -74,6 +74,7 @@ def main():
     augment_type = args.augment
     for phase in ['train', 'dev', 'test']:
         data_dict[phase] = model_name.Dataset(model, corpus, phase, augment_type)
+        print(type(data_dict['train']))
         data_dict[phase].prepare()
     runner = runner_name(args)
     # logging.info('Test Before Training: ' + runner.print_res(data_dict['test']))
@@ -81,7 +82,8 @@ def main():
         model.load_model()
     if args.train > 0:
         runner.train(data_dict)
-    eval_res = runner.print_res(data_dict['test'])
+    
+    eval_res = runner.print_res(data_dict['test'],args.train > 0)
     logging.info(os.linesep + 'Test After Training: ' + eval_res)
     # save_rec_results(data_dict['dev'], runner, 100)
     model.actions_after_train()
@@ -92,7 +94,7 @@ def main():
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
     result_file = result_dir + '/train_ratio {}-augment {}.txt'.format(args.train_ratio, args.augment)
-    res_str = runner.print_res(data_dict['test'])
+    res_str = runner.print_res(data_dict['test'], args.train > 0)
     with open(result_file, 'a') as f:
         f.write("\n")
         f.write("\n")
@@ -119,7 +121,7 @@ def save_rec_results(dataset, runner, topk):
 
 if __name__ == '__main__':
     init_parser = argparse.ArgumentParser(description='Model')
-    init_parser.add_argument('--model_name', type=str, default='BPRMF', help='Choose a model to run.')
+    init_parser.add_argument('--model_name', type=str, default='GRU4REC', help='Choose a model to run.')
     init_args, init_extras = init_parser.parse_known_args()
     model_name = eval('{0}.{0}'.format(init_args.model_name))
     reader_name = eval('{0}.{0}'.format(model_name.reader))  # model chooses the reader

@@ -229,7 +229,7 @@ class BaseRunner(object):
 
         return predictions
 
-    def print_res(self, dataset: BaseModel.Dataset) -> str:
+    def print_res(self, dataset: BaseModel.Dataset, train = True) -> str:
         """Epoch 11    loss=0.2237 [22.7 s]    dev=(HR@5:0.4923,NDCG@5:0.3515) [1.4 s] *                       
 Epoch 12    loss=0.2154 [26.3 s]    dev=(HR@5:0.4964,NDCG@5:0.3577) [1.6 s] *                       
 Epoch 13    loss=0.2080 [25.2 s]    dev=(HR@5:0.5074,NDCG@5:0.3665) [1.4 s] *                       
@@ -240,7 +240,10 @@ Epoch 17    loss=0.1886 [24.5 s]    dev=(HR@5:0.5270,NDCG@5:0.3822) [1.4 s]
         Construct the final result string before/after training
         :return: test result string
         """
-        average_epoch_time = self.calculate_average_epoch_time()
+        if train:
+            average_epoch_time = self.calculate_average_epoch_time()
+        else:
+            average_epoch_time = 0
         result_dict = self.evaluate(dataset, self.topk, self.metrics)
         res_str = '(' + utils.format_metric(result_dict) + ')'
         res_str += " - Avg Epoch Time {0:.3f} s".format(average_epoch_time)

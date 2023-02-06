@@ -168,6 +168,8 @@ class BaseModel(nn.Module):
                     else:
                         stack_val = np.array([d[key] for d in feed_dicts])
                 else:
+                    # for d in feed_dicts:
+                    #     print(d)
                     stack_val = np.array([d[key] for d in feed_dicts])
                 if stack_val.dtype == np.object:  # inconsistent length (e.g., history)
                     feed_dict[key] = pad_sequence([torch.from_numpy(x) for x in stack_val], batch_first=True)
