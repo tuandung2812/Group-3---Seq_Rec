@@ -129,7 +129,6 @@ class BaseModel(nn.Module):
         def __getitem__(self, index: int) -> dict:
             if self.model.buffer and self.phase != 'train':
                 return self.buffer_dict[index]
-            # print(len(self), index, self.augment_type)
             if self.phase == 'train' and self.augment_type != 'None':
                 if index >= len(self) / 2:
                     # print(index)
@@ -306,12 +305,8 @@ class SequentialModel(GeneralModel):
             if self.augment_type == 'item_mask':
                 feed_dict['history_items'] = self.augment_item_mask(feed_dict['history_items'])
 
-            # print("History after", feed_dict['history_items'])
-
             feed_dict['history_times'] = np.array([x[1] for x in user_seq])
             feed_dict['lengths'] = len(feed_dict['history_items'])
-            # print("This is augment area", index)
-            # print(feed_dict)
 
             
             return feed_dict
@@ -334,9 +329,7 @@ class SequentialModel(GeneralModel):
                 item_sequence = np.array(item_sequence)
                 negative_items_list = np.setdiff1d(self.list_items,item_sequence)
                 augmented_negative_item = random.choice(negative_items_list)
-                # print("Negative", augmented_negative_item)
                 item_sequence = item_sequence[1:]
-                # print("Sequence", item_sequence)
                 item_sequence = np.insert(item_sequence,random.randint(0, len(item_sequence)), augmented_negative_item) 
                 return item_sequence      
 

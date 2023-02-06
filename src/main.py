@@ -48,7 +48,6 @@ def main():
     # GPU
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     args.device = torch.device('cpu')
-    print(torch.cuda.is_available())
     if args.gpu != '' and torch.cuda.is_available():
         args.device = torch.device('cuda')
     logging.info('Device: {}'.format(args.device))
@@ -65,7 +64,6 @@ def main():
 
     # Define model
     model = model_name(args, corpus).to(args.device)
-    # print(type(model))
     logging.info('#params: {}'.format(model.count_variables()))
     logging.info(model)
 
@@ -74,7 +72,6 @@ def main():
     augment_type = args.augment
     for phase in ['train', 'dev', 'test']:
         data_dict[phase] = model_name.Dataset(model, corpus, phase, augment_type)
-        print(type(data_dict['train']))
         data_dict[phase].prepare()
     runner = runner_name(args)
     # logging.info('Test Before Training: ' + runner.print_res(data_dict['test']))
