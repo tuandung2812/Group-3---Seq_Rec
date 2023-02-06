@@ -7,7 +7,20 @@ Reference:
     "Session-based Recommendations with Recurrent Neural Networks"
     Hidasi et al., ICLR'2016.
 CMD example:
-    python main.py --model_name GRU4Rec --emb_size 64 --hidden_size 128 --lr 1e-3 --l2 1e-4 --history_max 20 \
+    python main.    def _define_params(self):
+        self.i_embeddings = nn.Embedding(self.item_num, self.emb_size)
+        self.rnn = nn.GRU(input_size=self.emb_size, hidden_size=self.hidden_size, batch_first=True)
+        # self.pred_embeddings = nn.Embedding(self.item_num, self.hidden_size)
+        self.out = nn.Linear(self.hidden_size, self.emb_size)
+
+    def forward(self, feed_dict):
+        self.check_list = []
+        i_ids = feed_dict['item_id']  # [batch_size, -1]
+        # print(i_ids)
+        history = feed_dict['history_items']  # [batch_size, history_max]
+        lengths = feed_dict['lengths']  # [batch_size]
+        his_vectors = self.i_embeddings(history)
+py --model_name GRU4Rec --emb_size 64 --hidden_size 128 --lr 1e-3 --l2 1e-4 --history_max 20 \
     --dataset 'Grocery_and_Gourmet_Food'
 """
 

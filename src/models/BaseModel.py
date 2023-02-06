@@ -14,7 +14,6 @@ import random
 from utils import utils
 from helpers.BaseReader import BaseReader
 
-
 class BaseModel(nn.Module):
     reader, runner = None, None  # choose helpers in specific model classes
     extra_log_args = []
@@ -202,7 +201,7 @@ class GeneralModel(BaseModel):
         self.dropout = args.dropout
         self.test_all = args.test_all
 
-    def loss(self, out_dict: dict) -> torch.Tensor:
+    def bpr_loss(self, out_dict: dict) -> torch.Tensor:
         """
         BPR ranking loss with optimization on multiple negative samples (a little different now)
         "Recurrent neural networks with top-k gains for session-based recommendations"
@@ -217,6 +216,35 @@ class GeneralModel(BaseModel):
         # loss = F.softplus(-(pos_pred - neg_pred)).mean()
         # ↑ For numerical stability, use 'softplus(-x)' instead of '-log_sigmoid(x)'
         return loss
+    
+    def top1_loss(self, out_dict: dict) -> torch.Tensor:
+        """
+        Args:
+            logit (BxB): Variable that stores the logits for the items in the session-parallel mini-batch.
+                        Negative samples for a specific item are drawn from the other items in the
+                        session-parallel minibatch, as mentioned in the original GRU4REC paper.
+                        The first dimension corresponds to the batches, and the second dimension
+                        corresponds to sampled number of items to evaluate.
+        """
+        predictions = out_dict['prediction']
+        pos_pred, neg_pred = predictions[:, 0], predictions[:, 1:]
+        neg_softmax = (neg_pred - neg_pred.max()).softmax(dim=1)
+
+        loss = ((neg_pred - pos_pred[:, None]).sigmoid() + (neg_pred ** 2).sigmoid()).mean()
+
+        return loss
+    
+    def ce_loss(self, out_dict: dict) -> torch.Tensor:
+        """Cross Entropy Loss"""
+        predictions = out_dict['prediction']
+        batch_size = predictions.shape[0]
+        target = torch.zeros(batch_size).long().to(predictions.device)
+        # print(predictions.shape, target.shape)
+        # print(target)
+        ce_loss = nn.CrossEntropyLoss()
+        loss = ce_loss(predictions,target)
+        return loss
+
 
     class Dataset(BaseModel.Dataset):
         def _get_feed_dict(self, index):

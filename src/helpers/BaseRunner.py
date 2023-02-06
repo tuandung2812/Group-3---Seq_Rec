@@ -44,6 +44,8 @@ class BaseRunner(object):
                             help='The number of items recommended to each user.')
         parser.add_argument('--metric', type=str, default='NDCG,HR',
                             help='metrics: NDCG, HR')
+        parser.add_argument('--loss_type', type=str, default='BPR',
+                            help='Type of loss for training: BPR, Cross_Entropy, TOP1')
 
 
         return parser
@@ -92,6 +94,7 @@ class BaseRunner(object):
         self.epoch_time = []
 
         self.augment_type = args.augment
+        self.loss_type = args.loss_type
 
 
     def _check_time(self, start=False):
@@ -181,7 +184,13 @@ class BaseRunner(object):
             batch = utils.batch_to_gpu(batch, model.device)
             model.optimizer.zero_grad()
             out_dict = model(batch)
-            loss = model.loss(out_dict)
+            if self.loss_type == 'BPR':
+                loss = model.bpr_loss(out_dict)
+            elif self.loss_type == 'TOP1':
+                loss = model.top1_loss(out_dict)
+            elif self.loss_type == 'Cross_Entropy':
+                loss = model.ce_loss(out_dict)
+
             loss.backward()
             model.optimizer.step()
             loss_lst.append(loss.detach().cpu().data.numpy())
