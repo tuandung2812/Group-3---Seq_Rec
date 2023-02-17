@@ -1,0 +1,1 @@
+- To run the experiments in this project, run all the bash files in the src folders

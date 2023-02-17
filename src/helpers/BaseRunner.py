@@ -67,6 +67,7 @@ class BaseRunner(object):
                 key = '{}@{}'.format(metric, k)
                 if metric == 'HR':
                     evaluations[key] = hit.mean()
+                    print(hit.mean())
                 elif metric == 'NDCG':
                     evaluations[key] = (hit / np.log2(gt_rank + 1)).mean()
                 else:

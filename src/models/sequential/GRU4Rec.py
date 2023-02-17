@@ -66,21 +66,23 @@ class GRU4Rec(SequentialModel):
 
 
         # print(i_ids.shape, history.shape)
-        for i in range(i_ids.shape[0]):
-            user_id = feed_dict['user_id'][i]
-            item_id = i_ids[i]
-            history_id = history[i]
+        # for i in range(i_ids.shape[0]):
+        #     user_id = feed_dict['user_id'][i]
+        #     item_id = i_ids[i]
+        #     history_id = history[i]
             # if user_id == 1612:
             #     print("user id", user_id)
             #     print("item id", item_id)
             #     print("history", history_id)
 
         # Sort and Pack
+        # print(his_vectors.shape)
         sort_his_lengths, sort_idx = torch.topk(lengths, k=len(lengths))
         sort_his_vectors = his_vectors.index_select(dim=0, index=sort_idx)
         history_packed = torch.nn.utils.rnn.pack_padded_sequence(
             sort_his_vectors, sort_his_lengths.cpu(), batch_first=True)
-
+        
+        # print(history_packed)
         # RNN
         output, hidden = self.rnn(history_packed, None)
 
@@ -92,5 +94,6 @@ class GRU4Rec(SequentialModel):
         # pred_vectors = self.pred_embeddings(i_ids)
         pred_vectors = self.i_embeddings(i_ids)
         rnn_vector = self.out(rnn_vector)
+        print(pred_vectors.shape, rnn_vector.shape)
         prediction = (rnn_vector[:, None, :] * pred_vectors).sum(-1)
         return {'prediction': prediction.view(feed_dict['batch_size'], -1)}
